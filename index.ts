@@ -1,14 +1,15 @@
-import express, { type Request, type Response } from "express";
+import express from "express";
 
 // middlewares
 import cors from "cors";
 import bodyParser from "body-parser";
 import helmet from "helmet";
 import morgan from "morgan";
+import rateLimit from "express-rate-limit";
 
-import * as userServices from "./services/Users/users";
+import * as blogPostServices from "./services/Blog/blogPost";
 
-import { createUserRouter } from "./routes/userRoutes";
+import { createBlogPostRouter } from "./routes/blogPostsRoutes";
 import { createHealthRouter } from "./routes/health";
 import docsRoutes from "./routes/docs";
 import errorHandler from "./util/errorHandler";
@@ -47,16 +48,24 @@ app.use(
 );
 app.use(bodyParser.json());
 app.use(morgan("combined"));
+
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 100,
+})
+
+app.use(limiter);
 app.use(errorHandler);
 
 // services
-const userService = new userServices.UserServiceImpl();
+const blogPostRepository = new blogPostServices.BlogPostRepository();
+const blogPostService = new blogPostServices.BlogPostServiceImpl(blogPostRepository);
 
 // routes
-const userRoutes = createUserRouter(userService);
+const blogRoutes = createBlogPostRouter(blogPostService);
 const healthRoutes = createHealthRouter();
 
-app.use("/users", userRoutes);
+app.use("/blog", blogRoutes);
 app.use("/", healthRoutes);
 app.use("/docs", docsRoutes);
 
