@@ -8,7 +8,7 @@ type BlogPost = {
 
 interface BlogPostService {
   getPosts(): Promise<BlogPost[]>;
-  getPostById(id: number): Promise<BlogPost | undefined>;
+  getPostById(id: number): Promise<BlogPost | null>;
   get3MostRecentPosts(): Promise<BlogPost[]>;
 }
 
