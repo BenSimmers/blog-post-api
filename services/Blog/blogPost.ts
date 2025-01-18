@@ -1,9 +1,16 @@
 import { db } from "../../database/database";
 import type { BlogPost, BlogPostService } from "./model";
+
 class BlogPostRepository {
   async getPosts(): Promise<BlogPost[]> {
     try {
-      return await db("blog_posts").select("id", "title", "content", "date_published", "author");
+      return await db("blog_posts").select(
+        "id",
+        "title",
+        "content",
+        "date_published",
+        "author",
+      );
     } catch (error) {
       console.error("Error fetching posts:", error);
       throw new Error("Database error while fetching posts.");
@@ -12,10 +19,12 @@ class BlogPostRepository {
 
   async getPostById(id: number): Promise<BlogPost | null> {
     try {
-      return await db("blog_posts")
-        .select("id", "title", "content", "date_published", "author")
-        .where({ id })
-        .first() || null;
+      return (
+        (await db("blog_posts")
+          .select("id", "title", "content", "date_published", "author")
+          .where({ id })
+          .first()) || null
+      );
     } catch (error) {
       console.error(`Error fetching post with ID ${id}:`, error);
       throw new Error("Database error while fetching the post.");
@@ -34,7 +43,6 @@ class BlogPostRepository {
     }
   }
 }
-
 
 class BlogPostServiceImpl implements BlogPostService {
   constructor(private repository: BlogPostRepository) {}
